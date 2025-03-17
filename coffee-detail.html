@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee cups series - Black Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .coffee-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .coffee-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* link/right column */
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        /* link column*/
+        .coffee-left-column {
+            display: grid;
+            grid-template-columns: 1fr; /* single column */
+            gap: 30px;
+        }
+        
+        /* right column */
+        .coffee-right-column {
+            display: grid;
+            grid-template-columns: 1fr; /* single column*/
+            gap: 30px;
+        }
+        
+        .coffee-item {
+            display: flex;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 8px;
+            height: auto;  /* remove Fixed Height */
+            min-height: 340px;  /* set min-height */
+        }
+        
+        .coffee-image {
+            width: 250px;  /* set pic width */
+            height: 300px;  /* set pic height*/
+            object-fit: contain;
+        }
+        
+        .coffee-info {
+            padding: 0 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;  /* Add uniform spacing */
+        }
+        
+        .coffee-info h2 {
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            height: auto;  /* remove fixed height */
+            min-height: 40px;  /* set min-height*/
+            overflow: visible;  /* allow text overflow */
+            line-height: 1.3;  /* set line-height */
+            word-wrap: break-word;  /* Allow line breaks for long words */
+        }
+        
+        .rating {
+            color: #ff9900;
+            margin: 8px 0;
+            height: 20px;  /* fixed comments height */
+        }
+        
+        .brand {
+            margin: 8px 0;
+            height: 20px;  /* fixed brand height */
+        }
+        
+        .price {
+            margin: 8px 0;
+            height: 24px;  /* fixed price height */
+        }
+        
+        .promotion {
+            background: #fff5f5;
+            color: #ff4444;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 4px;
+            min-height: 35px;  /* fixed promotion infomations height */
+        }
+        
+        .quantity-section {
+            margin-top: auto; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            height: 40px;  /* Fixed operating area height */
+        }
+        
+        .quantity-select {
+            padding: 5px;
+            width: 60px;
+            flex-shrink: 0;
+        }
+        
+        .add-to-cart {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        .product-info {
+            margin-top: 8px;
+            height: 20px;  /* Fixed bottom message height */
+        }
+        
+        /* Add cart indicator style */
+        .cart-indicator {
+            position: fixed;
+            right: 30px;
+            top: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            z-index: 1000;
+        }
+
+        /* Shopping cart sidebar style */
+        .cart-sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            z-index: 1001;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            justify-content: space-between;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .bundle-promotion {
+            background: #fff5f5;
+            color: #ff4444;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="coffee-app">
+        <!-- Add Shopping Cart Icon -->
+        <div class="cart-indicator" @click="showCart = true">
+            🛒 Cart ({{ cartTotal }})
+        </div>
+
+        <!-- Shopping Cart Sidebar -->
+        <div class="cart-sidebar" v-if="showCart">
+            <h2>Cart </h2>
+            <button @click="showCart = false" class="close-btn">✕</button>
+            
+            <div v-if="cart.length > 0">
+                <div class="cart-item" v-for="(item, index) in cart" :key="index">
+                    <div class="cart-item-info">
+                        <div>{{ item.name }}</div>
+                        <div>¥{{ item.price }} × {{ item.quantity }}</div>
+                    </div>
+                    <button @click="removeFromCart(index)" class="remove-btn">delete</button>
+                </div>
+                
+                <div class="cart-total">
+                    total: ¥{{ totalPrice }}
+                </div>
+                
+                <button @click="checkout" class="checkout-btn">
+                    check out
+                </button>
+            </div>
+            
+            <div v-else class="empty-cart">
+                Cart is empty
+            </div>
+        </div>
+
+        <nav class="main-nav">Black Patterns - Coffee cups series</nav>
+        
+        <div class="coffee-container">
+            <div class="coffee-grid">
+                <!-- Left vertical row c1, c2, c3 -->
+                <div class="coffee-left-column">
+                    <div class="coffee-item" v-for="cup in leftColumnCups" :key="cup.id" @click="showProductDetail(cup)">
+                        <img :src="cup.image" :alt="cup.name" class="coffee-image">
+                        <div class="coffee-info">
+                            <h2>{{ cup.name }}</h2>
+                            <div class="rating">
+                                <span>★★★★★</span>
+                                <span>{{ cup.rating }}% good review</span>
+                            </div>
+                            <div class="brand">Brand：{{ cup.brand }}</div>
+                            <div class="price">
+                                <span class="current-price">¥{{ cup.price }}</span>
+                                <span class="original-price">¥{{ cup.originalPrice }}</span>
+                            </div>
+                            <div class="promotion" v-if="cup.promotion">{{ cup.promotion }}</div>
+                            <div v-if="cup.id === 'c5'" class="bundle-promotion">
+                                Matching Offer：Fine Coffee Spoon (￥6.9)
+                            </div>
+                            <div class="quantity-section">
+                                <select v-model="cup.selectedQty" class="quantity-select">
+                                    <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                                </select>
+                                <button @click="addToCart(cup)" class="add-to-cart">add to cart</button>
+                            </div>
+                            <div class="product-info">
+                                <span class="sold">sold {{cup.sold}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Start -->
+                <div class="coffee-right-column">
+                    <div class="coffee-item" v-for="cup in rightColumnCups" :key="cup.id" @click="showProductDetail(cup)">
+                        <img :src="cup.image" :alt="cup.name" class="coffee-image">
+                        <div class="coffee-info">
+                            <h2>{{ cup.name }}</h2>
+                            <div class="rating">
+                                <span>★★★★★</span>
+                                <span>{{ cup.rating }}% good review</span>
+                            </div>
+                            <div class="brand">Brand：{{ cup.brand }}</div>
+                            <div class="price">
+                                <span class="current-price">¥{{ cup.price }}</span>
+                                <span class="original-price">¥{{ cup.originalPrice }}</span>
+                            </div>
+                            <div class="promotion" v-if="cup.promotion">{{ cup.promotion }}</div>
+                            <div v-if="cup.id === 'c5'" class="bundle-promotion">
+                                Matching Offer: Fine Coffee Spoon (￥6.9)
+                            </div>
+                            <div class="quantity-section">
+                                <select v-model="cup.selectedQty" class="quantity-select">
+                                    <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                                </select>
+                                <button @click="addToCart(cup)" class="add-to-cart">add to cart</button>
+                            </div>
+                            <div class="product-info">
+                                <span class="sold">sold {{cup.sold}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 添加反馈调查提示 -->
+        <div style="font-size: 18px; font-weight: bold; text-align: center; margin-top: 30px;">
+            Thank you for your cooperation. Please click on the link to describe your ‘shopping’ experience. It may take you 5-10 minutes to participate in the survey.
+        </div>
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="https://forms.gle/PyG9dbWQk1Lryc2Y8">Click here to participate in the survey</a>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#coffee-app',
+            data: {
+                coffeeCups: [
+                    {
+                        id: 'c1',
+                        name: 'Coffee cup wirh saucer(Plum bossom)',
+                        image: './pics/c1.jpg',
+                        price: 25.99,
+                        originalPrice: 49,
+                        rating: 95,
+                        brand: 'non-brand',
+                        promotion: 'Only 2 left!!!',
+                        selectedQty: 1,
+                        sold: 17
+                    },
+                    {
+                        id: 'c2',
+                        name: 'Coffee cup wirh saucer(Blue bossom)',
+                        image: './pics/c2.jpg',
+                        price: 26.99,
+                        originalPrice: 89,
+                        rating: 90,
+                        brand: 'non-brand',
+                        promotion: '70%Off',
+                        selectedQty: 1,
+                        sold: 38
+                    },
+                    {
+                        id: 'c3',
+                        name: 'Coffee cup wirh saucer(Bamboo)',
+                        image: './pics/c3.jpg',
+                        price: 32.9,
+                        originalPrice: 89,
+                        rating: 99,
+                        brand: 'non-brand',
+                        promotion: '99% good review',
+                        selectedQty: 1,
+                        sold: 105
+                    },
+                    {
+                        id: 'c4',
+                        name: 'Coffee cup wirh saucer(snow flower)',
+                        image: './pics/c4.jpg',
+                        price: 27,
+                        originalPrice: 49,
+                        rating: 90,
+                        brand: 'non-brand',
+                        promotion: 'Time-limited special offer：',
+                        selectedQty: 1,
+                        sold: 26,
+                        endTime: new Date().getTime() + 18 * 60 * 60 * 1000, // 18hours
+                        remainingTime: ''
+                    },
+                    {
+                        id: 'c5',
+                        name: 'Coffee cup wirh saucer(check out)',
+                        image: './pics/c5.jpg',
+                        price: 26,
+                        originalPrice: 54,
+                        rating: 94,
+                        brand: 'non-brand',
+                        selectedQty: 1,
+                        sold: 33
+                    },
+                    {
+                        id: 'c6',
+                        name: 'Simple coffee cup with saucer',
+                        image: './pics/c6.jpg',
+                        price: 28,
+                        originalPrice: 51,
+                        rating: 92,
+                        brand: 'non-brand',
+                        selectedQty: 1,
+                        sold: 42
+                    }
+                ],
+                cart: [],
+                showCart: false,
+                timer: null
+            },
+            computed: {
+                cartTotal() {
+                    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+                },
+                totalPrice() {
+                    return this.cart.reduce((sum, item) => 
+                        sum + (item.price * item.quantity), 0).toFixed(2);
+                },
+                leftColumnCups() {
+                    return this.coffeeCups.slice(0, 3);
+                },
+                rightColumnCups() {
+                    return this.coffeeCups.slice(3);
+                }
+            },
+            methods: {
+                addToCart(cup) {
+                    const cartItem = {
+                        id: cup.id,
+                        name: cup.name,
+                        price: cup.price,
+                        quantity: cup.selectedQty,
+                        image: cup.image
+                    };
+
+                    
+                    if (cup.id === 'c6') {
+                     
+                        alert('Thank you for subscribing to the store, we will notify you of the latest specials!');
+                    }
+
+                    
+                    if (cup.id === 'c5') {
+                        // Add bundles of coffee spoons
+                        const spoonItem = {
+                            id: 'spoon1',
+                            name: 'Fine Coffee Spoon',
+                            price: 6.9,
+                            quantity: cup.selectedQty
+                        };
+                        
+                        // check if Spoon in the cart
+                        const existingSpoon = this.cart.find(item => item.id === 'spoon1');
+                        if (existingSpoon) {
+                            existingSpoon.quantity += cup.selectedQty;
+                        } else {
+                            this.cart.push(spoonItem);
+                        }
+                        
+                        alert(`Successfully added to cart：\n${cup.name} x ${cup.selectedQty}\nMatching Offer: Fine Coffee Spoon  x ${cup.selectedQty} (￥6.9/pce)`);
+                    } else {
+                        
+                        alert(`Successfully added to cart：${cup.name} x ${cup.selectedQty}`);
+                    }
+
+                    
+                    const existingItem = this.cart.find(item => item.id === cup.id);
+                    if (existingItem) {
+                        existingItem.quantity += cup.selectedQty;
+                    } else {
+                        this.cart.push(cartItem);
+                    }
+
+                    // save to localStorage
+                    this.saveCartToStorage();
+                    cup.selectedQty = 1;
+                },
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                    this.saveCartToStorage();
+                },
+                checkout() {
+                    if (this.cart.length === 0) {
+                        alert('Cart is empty');
+                        return;
+                    }
+                    alert('Successful settlement！');
+                    this.cart = [];
+                    this.saveCartToStorage();
+                    this.showCart = false;
+                },
+                saveCartToStorage() {
+                    localStorage.setItem('cartHistory', JSON.stringify(this.cart));
+                },
+                loadCartFromStorage() {
+                    const savedCart = localStorage.getItem('cartHistory');
+                    if (savedCart) {
+                        this.cart = JSON.parse(savedCart);
+                    }
+                },
+                updateCountdown() {
+                    const cup = this.coffeeCups.find(c => c.id === 'c4');
+                    const now = new Date().getTime();
+                    const distance = cup.endTime - now;
+                    
+                    if (distance <= 0) {
+                        // Reset new 18 hour
+                        cup.endTime = new Date().getTime() + 18 * 60 * 60 * 1000;
+                    }
+                    
+                    const currentDistance = cup.endTime - new Date().getTime();
+                    const hours = Math.floor(currentDistance / (1000 * 60 * 60));
+                    const minutes = Math.floor((currentDistance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((currentDistance % (1000 * 60)) / 1000);
+                    cup.promotion = `Time-limited special offer：${hours}Hour${minutes}Minutes${seconds}Second`;
+                },
+                showProductDetail(cup) {
+                    if (cup.id === 'c4') {
+                        window.location.href = 'product-detail.html';
+                    }
+                }
+            },
+            created() {
+                this.loadCartFromStorage();
+                this.timer = setInterval(this.updateCountdown, 1000);
+            },
+            beforeDestroy() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

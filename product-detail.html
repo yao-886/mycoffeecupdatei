@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>details of products - Black Patterns</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .product-images {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: contain;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .price-section {
+            margin: 20px 0;
+        }
+
+        .current-price {
+            color: #ff4444;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .original-price {
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+
+        .countdown {
+            background: #fff5f5;
+            color: #ff4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .product-stats {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .quantity-section {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .quantity-select {
+            padding: 8px;
+            width: 100px;
+            font-size: 16px;
+        }
+
+        .add-to-cart {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .product-description {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .main-nav {
+            background: #FF6600;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .cart-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cart-item-info {
+            display: flex;
+            gap: 10px;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .empty-cart {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="detail-app">
+        <div class="cart-indicator" @click="showCart = true">
+            🛒 Cart ({{ cartTotal }})
+        </div>
+
+        <div class="cart-sidebar" v-if="showCart">
+            <h2>Cart</h2>
+            <button @click="showCart = false" class="close-btn">✕</button>
+            
+            <div v-if="cart.length > 0">
+                <div class="cart-item" v-for="(item, index) in cart" :key="index">
+                    <div class="cart-item-info">
+                        <div>{{ item.name }}</div>
+                        <div>¥{{ item.price }} × {{ item.quantity }}</div>
+                    </div>
+                    <button @click="removeFromCart(index)" class="remove-btn">delete</button>
+                </div>
+                
+                <div class="cart-total">
+                    Total: ¥{{ totalPrice }}
+                </div>
+                
+                <button @click="checkout" class="checkout-btn">
+                    Check out
+                </button>
+            </div>
+            
+            <div v-else class="empty-cart">
+                Cart is empty
+            </div>
+        </div>
+
+        <nav class="main-nav">Black Patterns - Details of products</nav>
+        
+        <div class="detail-container">
+            <div class="product-images">
+                <img :src="product.image" :alt="product.name" class="main-image">
+            </div>
+            
+            <div class="product-info">
+                <h1 class="product-title">{{ product.name }}</h1>
+                
+                <div class="price-section">
+                    <span class="current-price">¥{{ product.price }}</span>
+                    <span class="original-price">¥{{ product.originalPrice }}</span>
+                </div>
+                
+                <div class="countdown">
+                    {{ product.promotion }}
+                </div>
+                
+                <div class="product-stats">
+                    <span>Good review: {{ product.rating }}%</span>
+                    <span>sold: {{ product.sold }}</span>
+                </div>
+                
+                <div class="quantity-section">
+                    <select v-model="selectedQty" class="quantity-select">
+                        <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                    </select>
+                    <button @click="addToCart" class="add-to-cart">add to cart</button>
+                </div>
+                
+                <div class="product-description">
+                    <h3>Product Details</h3>
+                    <p>Selected high-quality porcelain, handmade. Elegant and delicate snowflake pattern, with exquisite dish tray, can be used for daily use or collection and display.</p>
+                    <p>Specifications: Cup height 8cm, capacity 150ml</p>
+                    <p>Material: Porcelain</p>
+                    <p>Made in China</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#detail-app',
+            data: {
+                product: {
+                    id: 'c4',
+                    name: 'coffee cup with saucer (snow flower)',
+                    image: './pics/c4.jpg',
+                    price: 27,
+                    originalPrice: 49,
+                    rating: 90,
+                    brand: 'non-brand',
+                    promotion: 'Time-limited special offer：',
+                    selectedQty: 1,
+                    sold: 26,
+                    endTime: new Date().getTime() + 18 * 60 * 60 * 1000
+                },
+                selectedQty: 1,
+                timer: null,
+                cart: [],
+                showCart: false
+            },
+            computed: {
+                cartTotal() {
+                    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
+                },
+                totalPrice() {
+                    return this.cart.reduce((sum, item) => 
+                        sum + (item.price * item.quantity), 0).toFixed(2);
+                }
+            },
+            methods: {
+                addToCart() {
+                    const cartItem = {
+                        id: this.product.id,
+                        name: this.product.name,
+                        price: this.product.price,
+                        quantity: this.selectedQty,
+                        image: this.product.image
+                    };
+
+                    //  Get the latest shopping cart data
+                    const savedCart = localStorage.getItem('cartHistory');
+                    if (savedCart) {
+                        this.cart = JSON.parse(savedCart);
+                    }
+
+                    
+                    const existingItem = this.cart.find(item => item.id === this.product.id);
+                    if (existingItem) {
+                        existingItem.quantity += this.selectedQty;
+                    } else {
+                        this.cart.push(cartItem);
+                    }
+
+                    // Save updated cart data
+                    this.saveCartToStorage();
+                    
+                    alert(`Successfully added to cart：${this.product.name} x ${this.selectedQty}`);
+                    this.selectedQty = 1;
+                },
+                saveCartToStorage() {
+                    localStorage.setItem('cartHistory', JSON.stringify(this.cart));
+                },
+                loadCartFromStorage() {
+                    const savedCart = localStorage.getItem('cartHistory');
+                    if (savedCart) {
+                        this.cart = JSON.parse(savedCart);
+                    }
+                },
+                updateCountdown() {
+                    const now = new Date().getTime();
+                    const distance = this.product.endTime - now;
+                    
+                    if (distance <= 0) {
+                        this.product.endTime = new Date().getTime() + 18 * 60 * 60 * 1000;
+                    }
+                    
+                    const currentDistance = this.product.endTime - new Date().getTime();
+                    const hours = Math.floor(currentDistance / (1000 * 60 * 60));
+                    const minutes = Math.floor((currentDistance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((currentDistance % (1000 * 60)) / 1000);
+                    this.product.promotion = `Time-limited special offer：${hours}Hour${minutes}Minuts${seconds}Seconds`;
+                },
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                    this.saveCartToStorage();
+                },
+                checkout() {
+                    if (this.cart.length === 0) {
+                        alert('Cart is empty');
+                        return;
+                    }
+                    alert('Successful settlement！');
+                    this.cart = [];
+                    this.saveCartToStorage();
+                    this.showCart = false;
+                }
+            },
+            created() {
+                this.loadCartFromStorage();
+                this.timer = setInterval(this.updateCountdown, 1000);
+            },
+            beforeDestroy() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

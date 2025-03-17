@@ -1,0 +1,81 @@
+const mockProducts = [
+    {
+        id: 1,
+        name: "Wireless bluetooth earphones",
+        category: "Electronic product",
+        price: 299.00,
+        originalPrice: 399.00,
+        image: "./pics/earphone.jpg",
+        brand: "SoundMaster",
+        stock: 50,
+        sold: 120,
+        description: "High-fidelity sound quality, active noise cancellation, 30-hour battery life",
+        reviews: 235
+    },
+    {
+        id: 2,
+        name: "Smart watch",
+        category: "Electronic product",
+        price: 599.00,
+        originalPrice: 799.00,
+        image: "./pics/watch.jpg",
+        brand: "TechWear",
+        stock: 30,
+        sold: 89,
+        description: "Heart rate monitor, motion tracking, waterproof design",
+        reviews: 156
+    },
+    {
+        id: 3,
+        name: "Coffee cups",
+        category: "Household product",
+        price: 99.00,
+        originalPrice: 199.00,
+        image: "./pics/coffee.jpg",
+        brand: "Black Patterns",
+        stock: 100,
+        sold: 500,
+        description: "Keep warm and cold, 304 stainless steel liner",
+        reviews: 892
+    },
+    {
+        id: 4,
+        name: "Shoulder bag",
+        category: "Bags",
+        price: 199.00,
+        originalPrice: 299.00,
+        image: "./pics/backpack.jpg",
+        brand: "Fashion Gear",
+        stock: 45,
+        sold: 230,
+        description: "Large capacity design, waterproof fabric, suitable for commuting and traveling",
+        reviews: 428
+    },
+    {
+        id: 5,
+        name: "Sports running shoes",
+        category: "Outdoor sports",
+        price: 459.00,
+        originalPrice: 699.00,
+        image: "./pics/shoes.jpg",
+        brand: "SportMax",
+        stock: 60,
+        sold: 345,
+        description: "Lightweight and breathable, shock-absorbing and non-slip, professional running experience",
+        reviews: 672
+    },
+    {
+        id: 6,
+        name: "Smart phone",
+        category: "Electronic product",
+        price: 3999.00,
+        originalPrice: 4599.00,
+        image: "./pics/phone.jpg",
+        brand: "TechPro",
+        stock: 25,
+        sold: 189,
+        description: "5G Network, HD Camera, Powerful Performance",
+        reviews: 521
+    },
+
+]; 

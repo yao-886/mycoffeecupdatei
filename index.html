@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-shop Black Patterns</title>
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-toastify@latest/dist/vue-toastify.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-toastify@latest/dist/vue-toastify.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- cart tips -->
+        <div class="cart-indicator" @click="showCart = true">
+            🛒 Cart ({{ cartTotal }})
+        </div>
+
+        <!-- loaded state -->
+        <div class="loading-overlay" v-if="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- homepage -->
+        <div v-if="!showDetail">
+            <nav class="main-nav">E-shop Black Patterns</nav>
+            
+            <ul class="category-nav">
+                <li v-for="category in categories" :key="category">{{ category }}</li>
+            </ul>
+
+            <!-- Products -->
+            <div class="main-container">
+                <!-- first row：4products -->
+                <div class="product-row-1">
+                    <div class="product-card" v-for="product in filteredProducts.slice(0, 4)" :key="product.id" @click="showProductDetail(product)">
+                        <img :src="product.image" :alt="product.name">
+                        <div>{{ product.name }}</div>
+                        <div class="price">¥{{ product.price }}</div>
+                        <div class="stock">stock: {{ product.stock }}</div>
+                        <div class="sold">sold: {{ product.sold }}</div>
+                    </div>
+                </div>
+
+                <!-- send row：2products + 4promotion products -->
+                <div class="product-row-2">
+                    <!-- leftside 2 products -->
+                    <div class="regular-products">
+                        <div class="product-card" v-for="product in filteredProducts.slice(4, 6)" :key="product.id" @click="showProductDetail(product)">
+                            <img :src="product.image" :alt="product.name">
+                            <div>{{ product.name }}</div>
+                            <div class="price">¥{{ product.price }}</div>
+                            <div class="stock">stock: {{ product.stock }}</div>
+                            <div class="sold">sold: {{ product.sold }}</div>
+                        </div>
+                    </div>
+
+                    <!-- rightside 4 promotion products -->
+                    <div class="promotion-section">
+                        <div class="promotion-grid">
+                            <div class="promotion-card" v-for="deal in hotDeals.slice(0, 4)" :key="deal.id" @click="showProductDetail(deal)">
+                                <div class="promotion-tag">limited-time special offer</div>
+                                <div class="discount-badge">{{ deal.discount }}% OFF</div>
+                                <img :src="deal.image" :alt="deal.name">
+                                <div class="promotion-info">
+                                    <h3>{{ deal.name }}</h3>
+                                    <div class="promotion-price">
+                                        <span class="current-price">¥{{ deal.price }}</span>
+                                        <span class="original-price">¥{{ deal.originalPrice }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- details -->
+        <div v-if="showDetail" class="detail-page">
+            <button @click="showDetail = false" style="margin:20px">Return to homepage</button>
+            
+            <div class="detail-container">
+                <div class="product-image">
+                    <img :src="currentProduct.image" :alt="currentProduct.name" style="width:100%">
+                </div>
+                
+                <div class="product-info">
+                    <h2>{{ currentProduct.name }}</h2>
+                    <div class="rating">★★★★☆ {{ currentProduct.reviews }}Review</div>
+                    <div class="brand">Brand：{{ currentProduct.brand }}</div>
+                    <div class="price">
+                        ¥{{ currentProduct.price }} 
+                        <span style="text-decoration:line-through; color:#666; margin-left:10px">
+                            ¥{{ currentProduct.originalPrice }}
+                        </span>
+                    </div>
+
+                    <div class="description">{{ currentProduct.description }}</div>
+
+                    <div class="quantity" style="margin-top:20px">
+                        <label>Amount：</label>
+                        <select v-model="selectedQty">
+                            <option v-for="n in 10" :value="n">{{n}}</option>
+                        </select>
+                        <button @click="addToCart" style="margin-left:15px; padding:8px 20px">
+                            add to cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping Cart Sidebar -->
+        <div class="cart-sidebar" v-if="showCart">
+            <h2>cart</h2>
+            <button @click="showCart = false" class="close-btn">✕</button>
+            
+            <!-- Shopping Cart Product List -->
+            <div v-if="cart.length > 0">
+                <div class="cart-item" v-for="(item, index) in cart" :key="index">
+                    <img :src="item.product.image" :alt="item.product.name">
+                    <div class="cart-item-info">
+                        <div>{{ item.product.name }}</div>
+                        <div>¥{{ item.product.price }} × {{ item.quantity }}</div>
+                    </div>
+                    <button @click="removeFromCart(index)" class="remove-btn">delete</button>
+                </div>
+                
+                <div class="cart-total">
+                    totak: ¥{{ totalPrice }}
+                </div>
+                
+                <button @click="checkout" class="checkout-btn" :disabled="loading">
+                    {{ loading ? 'in the process of check out...' : 'Check out' }}
+                </button>
+            </div>
+            
+            <div v-else class="empty-cart">
+                cart is empty
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html> 
